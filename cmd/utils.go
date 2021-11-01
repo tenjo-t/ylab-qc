@@ -34,15 +34,15 @@ func squares(n ...float64) float64 {
 }
 
 func calcTowTheta(n float64) float64 {
-	return math.Asin(opt.wl*math.Sqrt(n)/2/opt.lc) * 180 / math.Pi
+	return math.Asin(opt.wl*math.Sqrt(n)/2/opt.lc) * 360 / math.Pi
 }
 
 func calcLatticeConstant(n, th float64) string {
-	return strconv.FormatFloat(opt.wl*math.Sqrt(n)/2/math.Sin(th*math.Pi/180), 'f', -1, 64)
+	return strconv.FormatFloat(opt.wl*math.Sqrt(n)/2/math.Sin(th*math.Pi/360), 'f', -1, 64)
 }
 
 func calcNR(th float64) string {
-	r := th * math.Pi / 180
+	r := th * math.Pi / 360
 	i := math.Pow(math.Cos(r), 2)
 	return strconv.FormatFloat(i/math.Sin(r)+i/r, 'f', -1, 64)
 }

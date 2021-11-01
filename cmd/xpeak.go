@@ -99,14 +99,21 @@ func searchAC(r *csv.Reader) (*[][]string, error) {
 		h, _ := strconv.ParseFloat(rec[0], 64)
 		k, _ := strconv.ParseFloat(rec[1], 64)
 		l, _ := strconv.ParseFloat(rec[2], 64)
-		towTheta := calcTowTheta(squares(h, k, l))
+		N := squares(h, k, l)
+		towTheta := calcTowTheta(N)
 
 		fmt.Printf("(%s, %s, %s) ~%.2f: ", rec[0], rec[1], rec[2], towTheta)
-		if scanner.Scan() {
+		for scanner.Scan() {
 			text := scanner.Text()
 			if text != "" {
-				peaks = append(peaks, []string{rec[0], rec[1], rec[2], text})
+				th, err := strconv.ParseFloat(text, 64)
+				if err != nil {
+					fmt.Print("Retry: ")
+					continue
+				}
+				peaks = append(peaks, []string{rec[0], rec[1], rec[2], text, calcNR(th), calcLatticeConstant(N, th)})
 			}
+			break
 		}
 	}
 
@@ -135,16 +142,16 @@ func searchQC(r *csv.Reader) (*[][]string, error) {
 		h, _ := strconv.ParseFloat(rec[0], 64)
 		k, _ := strconv.ParseFloat(rec[1], 64)
 		l, _ := strconv.ParseFloat(rec[2], 64)
-		m, _ := strconv.ParseFloat(rec[0], 64)
-		n, _ := strconv.ParseFloat(rec[1], 64)
-		o, _ := strconv.ParseFloat(rec[2], 64)
+		m, _ := strconv.ParseFloat(rec[3], 64)
+		n, _ := strconv.ParseFloat(rec[4], 64)
+		o, _ := strconv.ParseFloat(rec[5], 64)
 
 		r1 := math.Sqrt(5)*h + k + l + m + n + o
-		r2 := h + math.Sqrt(5)*k + l + m + n + o
-		r3 := h + k + math.Sqrt(5)*l + m + n + o
-		r4 := h + k + l + math.Sqrt(5)*m + n + o
-		r5 := h + k + l + m + math.Sqrt(5)*n + o
-		r6 := h + k + l + m + n + math.Sqrt(5)*o
+		r2 := h + math.Sqrt(5)*k + l - m - n + o
+		r3 := h + k + math.Sqrt(5)*l + m - n - o
+		r4 := h - k + l + math.Sqrt(5)*m + n - o
+		r5 := h - k - l + m + math.Sqrt(5)*n + o
+		r6 := h + k - l - m + n + math.Sqrt(5)*o
 
 		N := squares(r1, r2, r3, r4, r5, r6) / 20
 
@@ -159,8 +166,9 @@ func searchQC(r *csv.Reader) (*[][]string, error) {
 					fmt.Print("Retry: ")
 					continue
 				}
-				peaks = append(peaks, []string{rec[0], rec[1], rec[2], text, calcNR(th), calcLatticeConstant(N, th)})
+				peaks = append(peaks, []string{rec[0], rec[1], rec[2], rec[3], rec[4], rec[5], text, calcNR(th), calcLatticeConstant(N, th)})
 			}
+			break
 		}
 	}
 
