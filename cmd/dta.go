@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"encoding/csv"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"strconv"
@@ -118,19 +116,10 @@ set xlabel "{/:Italic T} (℃)"
 set ylabel "DTA (μV)"
 set xrange [400:950]
 
-%OBJ1%
-set object 1 fc "#93003a" fs noborder
-%OBJ2%
-set object 2 fc "#00429d" fs noborder
-%OBJ3%
-set object 3 fc "#f4777f" fs noborder
-%OBJ4%
-set object 4 fc "#73a2c6" fs noborder
-
 plot PATH."_1.csv" using 1:($2 -50) title "1st Heating" with l lw 4 lc "#93003a", \
-     PATH."_2.csv" title "1st Cooling" with l lw 4 lc "#00429d", \
+     PATH."_2.csv"                  title "1st Cooling" with l lw 4 lc "#00429d", \
      PATH."_3.csv" using 1:($2 -50) title "2nd Heating" with l lw 4 lc "#f4777f", \
-     PATH."_4.csv" title "2nd Cooling" with l lw 4 lc "#73a2c6"
+     PATH."_4.csv"                  title "2nd Cooling" with l lw 4 lc "#73a2c6"
 
 
 
@@ -144,86 +133,13 @@ replot
 var rng []float64
 
 func makePlt(base string) error {
-	var arrws []string
-	min := rng[0] + 50
-	max := rng[1] - 20
-	next := min
-	for i := 1; i < 5; i++ {
-		f, err := os.Open(fmt.Sprint(base, "_", i, ".csv"))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		r := csv.NewReader(f)
-		if err != nil {
-			return err
-		}
-
-		r.Comment = '#'
-		r.TrimLeadingSpace = true
-
-		for {
-			record, err := r.Read()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				return err
-			}
-
-			t, _ := strconv.ParseFloat(record[0], 64)
-
-			var pass bool
-			var dt float64
-			if i%2 == 0 {
-				if next < t {
-					pass = true
-				} else {
-					dt = -10
-				}
-			} else {
-				if t < next {
-					pass = true
-				} else {
-					dt = 10
-				}
-			}
-
-			if pass {
-				continue
-			}
-
-			if l := len(arrws); l == i {
-				v, _ := strconv.ParseFloat(record[1], 64)
-				if i%2 == 0 {
-					min += 30
-					next = min
-				} else {
-					max -= 30
-					next = max
-					v -= 50
-				}
-				arrws[l-1] = strings.Replace(arrws[l-1], "XXX", strconv.FormatFloat(v, 'f', -1, 64), 1)
-
-				break
-			}
-
-			dta, _ := strconv.ParseFloat(record[1], 64)
-			if i%2 != 0 {
-				dta -= 50
-			}
-			arrws = append(arrws, fmt.Sprintf("set object %d polygon from %f, %f to %f, %f to %f, XXX to %f, %f to %f, %f front", i, t, dta, t, dta+5, t+dt, t, dta-5, t, dta))
-			next += dt
-		}
-	}
 
 	f, err := os.Create(base + ".plt")
 	if err != nil {
 		return err
 	}
 
-	r := strings.NewReplacer("%PATH%", base, "%OBJ1%", arrws[0], "%OBJ2%", arrws[1], "%OBJ3%", arrws[2], "%OBJ4%", arrws[3])
+	r := strings.NewReplacer("%PATH%", base)
 	w := bufio.NewWriter(f)
 
 	if _, err := w.WriteString(r.Replace(PLT_TEMP)); err != nil {
