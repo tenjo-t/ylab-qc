@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"os"
 	"strings"
@@ -27,29 +28,44 @@ func runXcsv(path string) error {
 		return fmt.Errorf("only RAS file")
 	}
 
-	f, err := os.Open(path)
+	// reader
+	r, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	s := bufio.NewScanner(r)
+
+	// writer
+	f, err := os.Create(strings.Replace(path, ".ras", ".csv", 1))
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	result := [][]string{
-		{"#2theta", "Intensity"},
-	}
+	w := csv.NewWriter(f)
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "*") || strings.HasPrefix(line, "#") {
-			continue
-		}
-		result = append(result, strings.Split(line, " ")[:2])
-	}
-	if err := scanner.Err(); err != nil {
+	// header
+	if err := w.Write([]string{"#2theta", "Intensity"}); err != nil {
 		return err
 	}
 
-	if err := createCSV(&result, strings.Replace(path, ".ras", ".csv", 1)); err != nil {
+	for s.Scan() {
+		line := s.Text()
+
+		// skip
+		if strings.HasPrefix(line, "*") || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// write
+		if err := w.Write(strings.Split(line, " ")[:2]); err != nil {
+			return err
+		}
+	}
+
+	if err := s.Err(); err != nil {
 		return err
 	}
 
