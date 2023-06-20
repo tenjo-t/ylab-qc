@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var xcsvCmd = &cobra.Command{
+var xcsv = &cobra.Command{
 	Use:   "xcsv",
 	Short: "RAS to CSV converter",
 	Long:  "RAS to CSV converter",
@@ -65,6 +65,8 @@ func runXcsv(path string) error {
 		}
 	}
 
+	w.Flush()
+
 	if err := s.Err(); err != nil {
 		return err
 	}
@@ -73,5 +75,5 @@ func runXcsv(path string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(xcsvCmd)
+	root.AddCommand(xcsv)
 }

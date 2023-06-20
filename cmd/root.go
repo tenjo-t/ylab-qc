@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	rootCmd = &cobra.Command{
+	root = &cobra.Command{
 		Use:   "qc",
 		Short: "Quasicrystal analysis CLI tools",
 		Long:  "Quasicrystal analysis CLI tools",
@@ -15,10 +15,10 @@ var (
 )
 
 func Execute() {
-	rootCmd.SetOutput(os.Stdout)
-	if err := rootCmd.Execute(); err != nil {
-		rootCmd.SetOutput(os.Stderr)
-		rootCmd.Println(err)
+	root.SetOutput(os.Stdout)
+	if err := root.Execute(); err != nil {
+		root.SetOutput(os.Stderr)
+		root.Println(err)
 		os.Exit(1)
 	}
 }

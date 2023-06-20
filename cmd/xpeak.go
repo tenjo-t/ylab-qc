@@ -22,7 +22,7 @@ type xpeakOptions struct {
 
 var opt = &xpeakOptions{}
 
-var xpeakCmd = &cobra.Command{
+var xpeak = &cobra.Command{
 	Use:   "xpeak",
 	Short: "XRD peak search",
 	Long:  "XRD peak search",
@@ -176,9 +176,9 @@ func searchQC(r *csv.Reader) (*[][]string, error) {
 }
 
 func init() {
-	rootCmd.AddCommand(xpeakCmd)
-	xpeakCmd.Flags().Float64VarP(&opt.lc, "lc", "l", -1, "lattice constant")
-	xpeakCmd.MarkFlagRequired("lc")
-	xpeakCmd.Flags().Float64VarP(&opt.wl, "wl", "w", 1.540593, "wave length")
-	xpeakCmd.Flags().BoolVarP(&opt.isAC, "ac", "a", false, "structure of peak search \"AC11\" (default QC)")
+	root.AddCommand(xpeak)
+	xpeak.Flags().Float64VarP(&opt.lc, "lc", "l", -1, "lattice constant")
+	xpeak.MarkFlagRequired("lc")
+	xpeak.Flags().Float64VarP(&opt.wl, "wl", "w", 1.540593, "wave length")
+	xpeak.Flags().BoolVarP(&opt.isAC, "ac", "a", false, "structure of peak search \"AC11\" (default QC)")
 }

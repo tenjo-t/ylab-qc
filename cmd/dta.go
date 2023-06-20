@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dtaCmd = &cobra.Command{
+var dta = &cobra.Command{
 	Use:   "dta",
 	Short: "Make csv and plt file from DTA ASC file",
 	Long:  "Make csv and plt file from DTA ASC file",
@@ -166,6 +166,6 @@ func makePlt(base string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(dtaCmd)
-	dtaCmd.Flags().Float64SliceVarP(&rng, "range", "r", []float64{400., 950.}, "range of Temp.")
+	root.AddCommand(dta)
+	dta.Flags().Float64SliceVarP(&rng, "range", "r", []float64{400., 950.}, "range of Temp.")
 }
