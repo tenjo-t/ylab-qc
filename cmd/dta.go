@@ -85,6 +85,7 @@ func splitData(path string, base string) error {
 
 			if len(steps) == 0 {
 				step = Step{start, end, w}
+				steps = append(steps, step)
 			} else {
 				steps = append(steps, Step{start, end, w})
 			}
@@ -94,7 +95,7 @@ func splitData(path string, base string) error {
 
 		// read data row
 		if strings.HasPrefix(l, "#GD") {
-			if num > step.end {
+			if num > step.end && len(steps) != 0 {
 				step = steps[0]
 				steps = steps[1:]
 			}
